@@ -54,7 +54,8 @@ class MainActivity : ComponentActivity() {
                     onIntent = vm::onIntent,
                     onAddClick = {
                         navController.navigate(Constants.ADD_PRODUCT)
-                    }
+                    },
+                    events = vm.event
                 )
             }
 

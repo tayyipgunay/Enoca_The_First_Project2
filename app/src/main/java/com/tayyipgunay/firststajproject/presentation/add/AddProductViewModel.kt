@@ -209,9 +209,9 @@ class AddProductViewModel @Inject constructor(
             s.name.isBlank() -> {
                 println("❌ Validasyon hatası: Name boş")
                 viewModelScope.launch {
-                    _event.emit(AddProductEvent.ShowValidationError(FieldId.Name, "Name is required"))
+                    _event.emit(AddProductEvent.ShowValidationError(FieldId.Name, "Lütfen ürün adını girin"))
                 }
-                return _state.update { it.copy(error = "Name is required") }
+                return _state.update { it.copy(error = "Lütfen ürün adını girin") }
             }
             priceDouble == null -> {
                 println("❌ Validasyon hatası: Price geçersiz")
@@ -219,11 +219,11 @@ class AddProductViewModel @Inject constructor(
                     _event.emit(
                         AddProductEvent.ShowValidationError(
                             FieldId.Price,
-                            "Price must be a number"
+                            "Lütfen geçerli bir fiyat girin"
                         )
                     )
                 }
-                return _state.update { it.copy(error = "Price must be a number") }
+                return _state.update { it.copy(error = "Lütfen geçerli bir fiyat girin") }
             }
             s.selectedCategoryId.isNullOrBlank() -> {
                 println("❌ Validasyon hatası: Category boş - selectedCategoryId: ${s.selectedCategoryId}")
@@ -232,11 +232,35 @@ class AddProductViewModel @Inject constructor(
                     _event.emit(
                         AddProductEvent.ShowValidationError(
                             FieldId.Category,
-                            "Category is required"
+                            "Lütfen bir kategori seçin"
                         )
                     )
                 }
-                return _state.update { it.copy(error = "Category is required") }
+                return _state.update { it.copy(error = "Lütfen bir kategori seçin") }
+            }
+            s.imageUri == null -> {
+                println("❌ Validasyon hatası: Image boş")
+                viewModelScope.launch {
+                    _event.emit(
+                        AddProductEvent.ShowValidationError(
+                            FieldId.Image,
+                            "Lütfen bir görsel seçin"
+                        )
+                    )
+                }
+                return _state.update { it.copy(error = "Lütfen bir görsel seçin") }
+            }
+            s.arUri == null -> {
+                println("❌ Validasyon hatası: AR dosyası boş")
+                viewModelScope.launch {
+                    _event.emit(
+                        AddProductEvent.ShowValidationError(
+                            FieldId.Image,
+                            "Lütfen bir AR dosyası seçin"
+                        )
+                    )
+                }
+                return _state.update { it.copy(error = "Lütfen bir AR dosyası seçin") }
             }
         }
         println("✅ Validasyon başarılı!")

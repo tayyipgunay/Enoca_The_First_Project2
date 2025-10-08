@@ -4,11 +4,11 @@ import com.tayyipgunay.firststajproject.presentation.common.events.MessageType
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageChannel
 
 sealed interface ProductListEvent {
-    // Toast Messages - AddProductEvent ile tutarlı
+    // Mesaj gösterimi (Snackbar/Toast/Dialog)
     data class ShowMessage(
         val text: String,
         val type: MessageType = MessageType.Info,
-        val channel: MessageChannel = MessageChannel.Toast
+        val channel: MessageChannel = MessageChannel.Snackbar
     ) : ProductListEvent
 
     // Navigation Events

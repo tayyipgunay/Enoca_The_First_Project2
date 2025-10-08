@@ -41,16 +41,15 @@ import androidx.compose.ui.unit.dp
 import com.tayyipgunay.firststajproject.domain.model.ModelTypeUi
 import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageType
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
+import kotlinx.coroutines.launch
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import com.tayyipgunay.firststajproject.presentation.common.events.MessageChannel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,36 +59,7 @@ private fun AddProductTopBar() {
     )
 }
 
-@Composable
-private fun ToastMessage(
-    message: String,
-    type: MessageType,
-    modifier: Modifier = Modifier
-) {
-    val backgroundColor = when (type) {
-        MessageType.Success -> Color(0xFF4CAF50) // Yeşil
-        MessageType.Error -> Color(0xFFF44336)   // Kırmızı
-        MessageType.Warning -> Color(0xFFFF9800) // Turuncu
-        MessageType.Info -> Color(0xFF2196F3)    // Mavi
-    }
-    
-    val textColor = Color.White
-    
-    Card(
-        modifier = modifier
-            .padding(16.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Text(
-            text = message,
-            color = textColor,
-            modifier = Modifier.padding(16.dp),
-            style = MaterialTheme.typography.bodyLarge
-        )
-    }
-}
+// MessageChannel bazlı mesaj gösterimi: Snackbar/Toast/Dialog
 
 private val MODEL_TYPES = listOf(
     ModelTypeUi("1", "Giyim / Moda"),
@@ -222,17 +192,6 @@ private fun AddProductForm(
 
 
 
-        /*OutlinedTextField(
-            value = state.selectedCategoryId,
-            onValueChange = { onIntent(AddProductIntent.Category(it))
-                onIntent(AddProductIntent.LoadCategories)
-
-                            },
-            label = { Text("Category ID*") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )*/
-
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("Active")
             Switch(
@@ -260,8 +219,10 @@ fun AddProductScreen(
     events: kotlinx.coroutines.flow.SharedFlow<AddProductEvent>
 ) {
     var showConfirmDialog by remember { mutableStateOf<AddProductEvent.ShowConfirmDialog?>(null) }
-    var showToast by remember { mutableStateOf<AddProductEvent.ShowMessage?>(null) }
-    val coroutineScope = rememberCoroutineScope()
+    var showInfoDialog by remember { mutableStateOf<String?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     // Event handling
     LaunchedEffect(Unit) {
@@ -272,12 +233,26 @@ fun AddProductScreen(
                 }
 
                 is AddProductEvent.ShowMessage -> {
-                    println("📱 Toast mesajı: ${event.text} (${event.type})")
-                    // Toast mesajını göster
-                    showToast = event
-
+                    println("📱 Mesaj: ${event.text} (${event.type}) [${event.channel}]")
+                    // Kanal bazlı mesaj gösterimi
+                    when (event.channel) {
+                        MessageChannel.Snackbar -> {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = event.text,
+                                    duration = SnackbarDuration.Short,
+                                    withDismissAction = true
+                                )
+                            }
+                        }
+                        MessageChannel.Toast -> {
+                            Toast.makeText(context, event.text, Toast.LENGTH_SHORT).show()
+                        }
+                        MessageChannel.Dialog -> {
+                            showInfoDialog = event.text
+                        }
+                    }
                 }
-
 
                 is AddProductEvent.NavigateBack -> {
                     onSavedNavigateBack()
@@ -287,16 +262,22 @@ fun AddProductScreen(
                     onSavedNavigateBack()
                 }
                 is AddProductEvent.ShowFileError -> {
-                    showToast = AddProductEvent.ShowMessage(
-                        text = event.message,
-                        type = MessageType.Error
-                    )
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = event.message,
+                            duration = SnackbarDuration.Short,
+                            withDismissAction = true
+                        )
+                    }
                 }
                 is AddProductEvent.ShowValidationError -> {
-                    showToast = AddProductEvent.ShowMessage(
-                        text = event.message,
-                        type = MessageType.Error
-                    )
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = event.message,
+                            duration = SnackbarDuration.Short,
+                            withDismissAction = true
+                        )
+                    }
                 }
             }
 
@@ -311,10 +292,10 @@ fun AddProductScreen(
 
     val scroll = rememberScrollState()
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Scaffold(
-            topBar = { AddProductTopBar() }
-        ) { inner ->
+    Scaffold(
+        topBar = { AddProductTopBar() },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { inner ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -352,21 +333,6 @@ fun AddProductScreen(
             }
         }
 
-        // Toast mesajı - ortada göster
-        showToast?.let { toast ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                ToastMessage(
-                    message = toast.text,
-                    type = toast.type
-                )
-            }
-        }
-
         // Confirm Dialog
         showConfirmDialog?.let { dialog ->
         AlertDialog(
@@ -395,5 +361,18 @@ fun AddProductScreen(
             }
         )
     }
+
+    // Info Dialog (MessageChannel.Dialog için)
+    showInfoDialog?.let { msg ->
+        AlertDialog(
+            onDismissRequest = { showInfoDialog = null },
+            title = { Text("Bilgi") },
+            text = { Text(msg) },
+            confirmButton = {
+                TextButton(onClick = { showInfoDialog = null }) {
+                    Text("Tamam")
+                }
+            }
+        )
     }
 }

@@ -7,7 +7,7 @@ sealed interface UiEvent {
     data class ShowMessage(
         val text: String,
         val type: MessageType = MessageType.Info,
-        val channel: MessageChannel = MessageChannel.Toast
+        val channel: MessageChannel = MessageChannel.Snackbar
     ) : UiEvent
 
     data class ShowConfirmDialog(

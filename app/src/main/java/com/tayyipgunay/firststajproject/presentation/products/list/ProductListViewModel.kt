@@ -89,7 +89,7 @@ class ProductListViewModel @Inject constructor(
                                     isLoading = false,
                                     items = updatedItems,
                                     error = null,
-                                    hasMorePaneyseges = newItems.size >= currentState.size // Sonraki sayfa var mı?
+                                    hasMorePages = newItems.size >= currentState.size // Sonraki sayfa var mı?
                                 )
                             }
                             
@@ -120,10 +120,10 @@ class ProductListViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         isLoading = false,
-                        error = "Network error: ${e.message}"
+                        error = "İnternet bağlantısı hatası"
                     )
                 }
-                _event.emit(ProductListEvent.ShowMessage("Network error: ${e.message}", MessageType.Error))
+                _event.emit(ProductListEvent.ShowMessage("İnternet bağlantısı hatası", MessageType.Error))
             }
         }
     }
@@ -185,7 +185,7 @@ class ProductListViewModel @Inject constructor(
                                     items = newItems,
                                     error = null,
                                     page = 0,
-                                    hasMorePaneyseges = newItems.size >= currentState.size
+                                    hasMorePages = newItems.size >= currentState.size
                                 )
                             }
                             
@@ -215,10 +215,10 @@ class ProductListViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         isRefreshing = false,
-                        error = "Network error: ${e.message}"
+                        error = "İnternet bağlantısı hatası"
                     )
                 }
-                _event.emit(ProductListEvent.ShowMessage("Network error: ${e.message}", MessageType.Error))
+                _event.emit(ProductListEvent.ShowMessage("İnternet bağlantısı hatası", MessageType.Error))
             }
         }
     }

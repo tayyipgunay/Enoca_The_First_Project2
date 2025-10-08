@@ -75,13 +75,13 @@ class ProductRepositoryImpl @Inject constructor(
                 println("❌ Response message: ${resp.message()}")
                 println("❌ Response error body: ${resp.errorBody()?.string()}")
 
-                emit(Resource.Error("HTTP ${resp.code()} • ${resp.message()}"))
+                emit(Resource.Error("Sunucu hatası (${resp.code()})"))
             }
 
         } catch (io: IOException) {
-            emit(Resource.Error("Network error: ${io.message}"))
+            emit(Resource.Error("İnternet bağlantısı hatası"))
         } catch (e: Exception) {
-            emit(Resource.Error(e.message ?: "AddProduct failed"))
+            emit(Resource.Error(e.message ?: "Ürün eklenemedi"))
         }
     }.flowOn(Dispatchers.IO)
 
@@ -117,11 +117,11 @@ class ProductRepositoryImpl @Inject constructor(
 
 
 
-                emit(Resource.Error("HTTP ${response.code()} • ${response.message()}${err?.let { " • $it" } ?: ""}"))
+                emit(Resource.Error("Sunucu hatası (${response.code()})"))
             }
         } catch (e: Exception) {
             println("❌ Network error: ${e.message}")
-            emit(Resource.Error("Network error: ${e.message}"))
+            emit(Resource.Error("İnternet bağlantısı hatası"))
         }
     }
     .onStart { emit(Resource.Loading()) }
@@ -143,14 +143,14 @@ class ProductRepositoryImpl @Inject constructor(
             }    else {
                 val err = response.errorBody()?.string()
                 println("❌ API çağrısı başarısız!    " + err)
-                 emit(Resource.Error("HTTP ${response.code()} • ${response.message()}${err?.let { " • $it" } ?: ""}"))
+                 emit(Resource.Error("Sunucu hatası (${response.code()})"))
             }
             //bu parantez koyunca unrecahbel code okuyor neden
 
 
         } catch (e: Exception) {
             println("❌  error: ${e.message}")
-            emit(Resource.Error("Network error: ${e.message}"))
+            emit(Resource.Error("İnternet bağlantısı hatası"))
         }
     }.onStart {
         emit(Resource.Loading())

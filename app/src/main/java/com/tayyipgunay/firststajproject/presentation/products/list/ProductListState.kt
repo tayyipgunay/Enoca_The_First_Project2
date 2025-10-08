@@ -13,5 +13,5 @@ data class ProductListState(
     val size: Int = 20,
     val sort: List<String> = listOf("id,desc"),
     val selectedSort: ProductSort = ProductSort.ACTIVE_FIRST,
-    val hasMorePaneyseges: Boolean = true // Sonraki sayfa var mı?
+    val hasMorePages: Boolean = true // Sonraki sayfa var mı?
 )

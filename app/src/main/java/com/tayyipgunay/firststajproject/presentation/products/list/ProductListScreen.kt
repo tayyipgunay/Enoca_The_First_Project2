@@ -32,6 +32,13 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.tayyipgunay.firststajproject.domain.model.ProductSummary
 import com.tayyipgunay.firststajproject.domain.model.Product
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
+import kotlinx.coroutines.launch
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import com.tayyipgunay.firststajproject.presentation.common.events.MessageChannel
 // =====================================================
 // ================  PUBLIC API: SCREEN  ===============
 // =====================================================
@@ -40,9 +47,42 @@ import com.tayyipgunay.firststajproject.domain.model.Product
 fun ProductListScreen(
     state: ProductListState,
     onIntent: (ProductListIntent) -> Unit,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
+    events: kotlinx.coroutines.flow.SharedFlow<ProductListEvent>? = null
 ) {
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = state.isRefreshing)
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var showInfoDialog by remember { mutableStateOf<String?>(null) }
+    
+    // Event handling - kanal bazlı mesaj gösterimi
+    LaunchedEffect(Unit) {
+        events?.collect { event ->
+            when (event) {
+                is ProductListEvent.ShowMessage -> {
+                    when (event.channel) {
+                        MessageChannel.Snackbar -> {
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = event.text,
+                                    duration = SnackbarDuration.Short,
+                                    withDismissAction = true
+                                )
+                            }
+                        }
+                        MessageChannel.Toast -> {
+                            Toast.makeText(context, event.text, Toast.LENGTH_SHORT).show()
+                        }
+                        MessageChannel.Dialog -> {
+                            showInfoDialog = event.text
+                        }
+                    }
+                }
+                else -> { /* Handle other events if needed */ }
+            }
+        }
+    }
     
     Scaffold(
         topBar = {
@@ -52,7 +92,8 @@ fun ProductListScreen(
                 onSelectComboSort = { combo -> onIntent(ProductListIntent.ChangeSortRaw(combo)) },
                 onAddClick = onAddClick
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         SwipeRefresh(
             state = swipeRefreshState,
@@ -78,7 +119,7 @@ fun ProductListScreen(
                         val idx = options.indexOf(state.size).takeIf { it >= 0 } ?: 0
                         onIntent(ProductListIntent.ChangeSize(options[(idx + 1) % options.size]))
                     },
-                    hasMorePages = state.hasMorePaneyseges // Sonraki sayfa var mı?
+                    hasMorePages = state.hasMorePages // Sonraki sayfa var mı?
                 )
 
                 // ---- Content ----
@@ -96,6 +137,20 @@ fun ProductListScreen(
                 }
             }
         }
+    }
+    
+    // Info Dialog (MessageChannel.Dialog için)
+    showInfoDialog?.let { msg ->
+        AlertDialog(
+            onDismissRequest = { showInfoDialog = null },
+            title = { Text("Bilgi") },
+            text = { Text(msg) },
+            confirmButton = {
+                TextButton(onClick = { showInfoDialog = null }) {
+                    Text("Tamam")
+                }
+            }
+        )
     }
 }
 
@@ -263,19 +318,20 @@ fun ProductListItem(
                 verticalAlignment = Alignment.Top
             ) {
                 AsyncImage(
-                    model = Constants.BASE_URL.trimEnd('/') + "/" + (productSummary.image ?: "").trimStart('/'),
+                    model = Constants.BASE_URL.trimEnd('/') + "/" + (productSummary.image
+                        ?: "").trimStart('/'),
                     contentDescription = productSummary.name,
                     modifier = Modifier
                         .size(140.dp)
                         .clip(RoundedCornerShape(16.dp)),
                     contentScale = ContentScale.Crop
                 )
-                
+
                 StatusBadge(productSummary.isActive)
             }
-            
+
             Spacer(Modifier.height(16.dp))
-            
+
             // Product name - full width, no restrictions
             Text(
                 text = productSummary.name,
@@ -289,9 +345,9 @@ fun ProductListItem(
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.fillMaxWidth()
             )
-            
+
             Spacer(Modifier.height(12.dp))
-            
+
             // Price row
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -314,6 +370,7 @@ fun ProductListItem(
         }
     }
 }
+
 
 // =====================================================
 // ================  SMALL UTIL COMPOSABLES  ===========
