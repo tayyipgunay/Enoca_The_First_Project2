@@ -59,24 +59,91 @@ Data (Network)        →  Retrofit, Repository
 
 ---
 
-## 📂 Paket Yapısı
-
-```
 com.tayyipgunay.firststajproject/
 │
-├── 📂 core/                      # MVI, util, constants
-├── 📂 data/                      # API, DTO, Repository impl
-├── 📂 domain/                    # Models, UseCases, Repository interface
-├── 📂 di/                        # Hilt module
-├── 📂 presentation/
-│   ├── add/                      # Ürün ekleme (Screen, ViewModel, State, Intent, Event)
-│   ├── products/list/            # Ürün listesi (Screen, ViewModel, State, Intent, Event)
-│   ├── common/                   # Shared events & components
-│   └── ui/                       # Custom UI components
-└── MainActivity.kt               # Navigation host
-```
+├── 📁 core/
+│   │
+│   ├── 📁 mvi/
+│   │   └── 📄 MVIComponent.kt                      # MVI base interface
+│   │
+│   └── 📁 util/
+│       ├── 📄 Async.kt                             # Async helper'lar
+│       ├── 📄 Constants.kt                         # BASE_URL, endpoint'ler
+│       ├── 📄 MultipartUtils.kt                    # File upload, downscale, compress
+│       ├── 📄 RequestBodies.kt                     # Extension (toPlainBody)
+│       └── 📄 Resource.kt                          # Sealed class (Success/Error/Loading)
+│
+├── 📁 data/
+│   │
+│   ├── 📁 remote/
+│   │   │
+│   │   ├── 📁 dto/
+│   │   │   ├── 📄 CategoryDto.kt                   # Category DTO + mapper
+│   │   │   └── 📄 ProductDto.kt                    # Product DTO + mapper
+│   │   │
+│   │   └── 📄 ProductApi.kt                        # Retrofit API interface
+│   │
+│   └── 📁 repository/
+│       └── 📄 ProductRepositoryImpl.kt             # Repository implementation
+│
+├── 📁 di/
+│   └── 📄 AppModule.kt                             # Hilt module (Retrofit, Repository DI)
+│
+├── 📁 domain/
+│   │
+│   ├── 📁 model/
+│   │   ├── 📄 Category.kt                          # Domain model
+│   │   ├── 📄 ModelTypeUi.kt                       # UI model (Giyim, Elektronik...)
+│   │   ├── 📄 Product.kt                           # Domain model
+│   │   └── 📄 ProductSummary.kt                    # List item model
+│   │
+│   ├── 📁 repository/
+│   │   └── 📄 ProductRepository.kt                 # Repository interface
+│   │
+│   └── 📁 usecase/
+│       ├── 📄 AddProductUseCase.kt                 # Ürün ekleme logic
+│       ├── 📄 GetCategoriesUseCase.kt              # Kategori getirme
+│       └── 📄 GetProductUseCase.kt                 # Ürün listesi getirme
+│
+├── 📁 presentation/
+│   │
+│   ├── 📁 add/                                     # Ürün Ekleme Feature
+│   │   ├── 📄 AddProductEvent.kt                   # Events (ShowMessage, NavigateBack...)
+│   │   ├── 📄 AddProductIntent.kt                  # User actions (Save, Name, Price...)
+│   │   ├── 📄 AddProductScreen.kt                  # Compose UI + Form + Dialogs
+│   │   ├── 📄 AddProductState.kt                   # UI state (name, price, error...)
+│   │   └── 📄 AddProductViewModel.kt               # ViewModel + MVI logic
+│   │
+│   ├── 📁 common/
+│   │   │
+│   │   ├── 📄 ConfirmId.kt                         # Enum (SaveProduct, DeleteProduct...)
+│   │   │
+│   │   └── 📁 events/
+│   │       ├── 📄 MessageChannel.kt                # Enum (Toast, Snackbar, Dialog)
+│   │       ├── 📄 MessageType.kt                   # Enum (Success, Error, Warning, Info)
+│   │       └── 📄 UiEvent.kt                       # Shared events (ShowMessage, ShowConfirmDialog...)
+│   │
+│   ├── 📁 products/
+│   │   │
+│   │   └── 📁 list/                                # Ürün Listesi Feature
+│   │       ├── 📄 ProductListEvent.kt              # Events (ShowMessage)
+│   │       ├── 📄 ProductListIntent.kt             # User actions (Load, Refresh, ChangeSort...)
+│   │       ├── 📄 ProductListScreen.kt             # Compose UI + List + TopBar + Pagination
+│   │       ├── 📄 ProductListState.kt              # UI state (items, isLoading, page, size...)
+│   │       ├── 📄 ProductListViewModel.kt          # ViewModel + MVI logic
+│   │       └── 📄 ProductSort.kt                   # Enum (PRICE_ASC, ACTIVE_FIRST...)
+│   │
+│   └── 📁 ui/
+│       │
+│       ├── 📁 components/
+│       │   ├── 📄 PillChip.kt                      # Custom chip component
+│       │   └── 📄 StatusBadge.kt                   # Aktif/Pasif badge
+│       │
+│       └── 📁 state/
+│           └── 📄 States.kt                        # EmptyStateCard, ErrorStateCard, LoadingStateCard
+│
+└── 📄 MainActivity.kt                              # NavHost + Route management
 
-**Toplam:** 17 paket, 50+ Kotlin dosyası
 
 ---
 
