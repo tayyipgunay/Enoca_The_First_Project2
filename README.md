@@ -59,6 +59,9 @@ Data (Network)        →  Retrofit, Repository
 
 ---
 
+## 📂 Paket Yapısı
+
+```
 com.tayyipgunay.firststajproject/
 │
 ├── 📁 core/
@@ -143,7 +146,14 @@ com.tayyipgunay.firststajproject/
 │           └── 📄 States.kt                        # EmptyStateCard, ErrorStateCard, LoadingStateCard
 │
 └── 📄 MainActivity.kt                              # NavHost + Route management
+```
 
+**İstatistikler:**
+- 📦 Toplam Paket: 17
+- 📄 Kotlin Dosyası: 52
+- 🏗️ Katman: 3 (Presentation, Domain, Data)
+- 🎯 Feature: 2 (Add Product, Product List)
+- 📐 Pattern: MVI + Clean Architecture
 
 ---
 
@@ -292,7 +302,10 @@ GET  /api/categories      # Kategori listesi
 
 ---
 
-**⚡ Not:** Bu proje modern Android development pratiklerini göstermek için geliştirilmiştir
+**⚡ Not:** Bu proje modern Android development pratiklerini göstermek için geliştirilmiştir.
+
+---
+
  
                                        EKRAN GÖRÜNTÜLERİ
            
