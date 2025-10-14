@@ -70,7 +70,7 @@ object AppModule {
     @Singleton
     fun provideRetrofit(client: OkHttpClient, moshi: Moshi): Retrofit =
         Retrofit.Builder()
-            .baseUrl("http://37.156.246.102:9082/") // Constants.BASE_URL kullanabilirsin
+            .baseUrl(Constants.BASE_URL)
             .client(client)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()

@@ -8,6 +8,7 @@ import com.tayyipgunay.firststajproject.core.util.Resource
 import com.tayyipgunay.firststajproject.domain.repository.ProductRepository
 import com.tayyipgunay.firststajproject.domain.usecase.GetProductUseCase
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageType
+import com.tayyipgunay.firststajproject.presentation.common.events.MessageChannel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -93,7 +94,13 @@ class ProductListViewModel @Inject constructor(
                                 )
                             }
                             
-                            _event.emit(ProductListEvent.ShowMessage("Products loaded successfully", MessageType.Success))
+                            _event.emit(
+                                ProductListEvent.ShowMessage(
+                                    text = "Ürünler yüklendi",
+                                    type = MessageType.Success,
+                                    channel = MessageChannel.Toast
+                                )
+                            )
                         }
                         
                         is Resource.Error -> {
@@ -107,7 +114,13 @@ class ProductListViewModel @Inject constructor(
                                 )
                             }
                             
-                            _event.emit(ProductListEvent.ShowMessage("Error loading products: ${result.message}", MessageType.Error))
+                            _event.emit(
+                                ProductListEvent.ShowMessage(
+                                    text = "Ürünler yüklenemedi: ${result.message}",
+                                    type = MessageType.Error,
+                                    channel = MessageChannel.Snackbar
+                                )
+                            )
                         }
                         
                         is Resource.Loading -> {
@@ -123,7 +136,13 @@ class ProductListViewModel @Inject constructor(
                         error = "İnternet bağlantısı hatası"
                     )
                 }
-                _event.emit(ProductListEvent.ShowMessage("İnternet bağlantısı hatası", MessageType.Error))
+                _event.emit(
+                    ProductListEvent.ShowMessage(
+                        text = "İnternet bağlantısı hatası",
+                        type = MessageType.Error,
+                        channel = MessageChannel.Snackbar
+                    )
+                )
             }
         }
     }
@@ -189,7 +208,13 @@ class ProductListViewModel @Inject constructor(
                                 )
                             }
                             
-                            _event.emit(ProductListEvent.ShowMessage("Products refreshed", MessageType.Success))
+                            _event.emit(
+                                ProductListEvent.ShowMessage(
+                                    text = "Yenilendi",
+                                    type = MessageType.Success,
+                                    channel = MessageChannel.Toast
+                                )
+                            )
                         }
                         
                         is Resource.Error -> {
@@ -202,7 +227,13 @@ class ProductListViewModel @Inject constructor(
                                 )
                             }
                             
-                            _event.emit(ProductListEvent.ShowMessage("Error refreshing products: ${result.message}", MessageType.Error))
+                            _event.emit(
+                                ProductListEvent.ShowMessage(
+                                    text = "Yenileme başarısız: ${result.message}",
+                                    type = MessageType.Error,
+                                    channel = MessageChannel.Snackbar
+                                )
+                            )
                         }
                         
                         is Resource.Loading -> {
@@ -218,7 +249,13 @@ class ProductListViewModel @Inject constructor(
                         error = "İnternet bağlantısı hatası"
                     )
                 }
-                _event.emit(ProductListEvent.ShowMessage("İnternet bağlantısı hatası", MessageType.Error))
+                _event.emit(
+                    ProductListEvent.ShowMessage(
+                        text = "İnternet bağlantısı hatası",
+                        type = MessageType.Error,
+                        channel = MessageChannel.Snackbar
+                    )
+                )
             }
         }
     }

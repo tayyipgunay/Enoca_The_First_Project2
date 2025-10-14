@@ -8,6 +8,7 @@ import com.tayyipgunay.firststajproject.domain.usecase.AddProductUseCase
 import com.tayyipgunay.firststajproject.domain.usecase.GetCategoriesUseCase
 import com.tayyipgunay.firststajproject.presentation.common.ConfirmId
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageType
+import com.tayyipgunay.firststajproject.presentation.common.events.MessageChannel
 import com.tayyipgunay.firststajproject.presentation.products.list.ProductListEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -209,7 +210,12 @@ class AddProductViewModel @Inject constructor(
             s.name.isBlank() -> {
                 println("❌ Validasyon hatası: Name boş")
                 viewModelScope.launch {
-                    _event.emit(AddProductEvent.ShowValidationError(FieldId.Name, "Lütfen ürün adını girin"))
+                    _event.emit(
+                        AddProductEvent.ShowValidationError(
+                            FieldId.Name, 
+                            "Lütfen ürün adını girin"
+                        )
+                    )
                 }
                 return _state.update { it.copy(error = "Lütfen ürün adını girin") }
             }
@@ -294,14 +300,26 @@ class AddProductViewModel @Inject constructor(
 
                         is Resource.Success -> {
                             println("✅ Success state - Product: ${res.data}")
-                            _event.emit(AddProductEvent.ShowMessage("Başarıyla kaydedildi!", MessageType.Success))
+                            _event.emit(
+                                AddProductEvent.ShowMessage(
+                                    text = "Başarıyla kaydedildi!",
+                                    type = MessageType.Success,
+                                    channel = MessageChannel.Snackbar
+                                )
+                            )
                             _event.emit(AddProductEvent.NavigateBack)
                             _state.update { it.copy(isSaving = false, saved = true) }
                         }
 
                         is Resource.Error -> {
                             println("❌ Error state - Message: ${res.message}")
-                            _event.emit(AddProductEvent.ShowMessage("Error: ${res.message}", MessageType.Error))
+                            _event.emit(
+                                AddProductEvent.ShowMessage(
+                                    text = "Hata: ${res.message}",
+                                    type = MessageType.Error,
+                                    channel = MessageChannel.Snackbar
+                                )
+                            )
                             _state.update { it.copy(isSaving = false, error = res.message) }
                         }
                     }

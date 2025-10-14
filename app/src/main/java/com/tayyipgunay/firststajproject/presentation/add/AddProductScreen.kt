@@ -240,8 +240,7 @@ fun AddProductScreen(
                             scope.launch {
                                 snackbarHostState.showSnackbar(
                                     message = event.text,
-                                    duration = SnackbarDuration.Short,
-                                    withDismissAction = true
+                                    duration = SnackbarDuration.Long
                                 )
                             }
                         }
@@ -265,8 +264,7 @@ fun AddProductScreen(
                     scope.launch {
                         snackbarHostState.showSnackbar(
                             message = event.message,
-                            duration = SnackbarDuration.Short,
-                            withDismissAction = true
+                            duration = SnackbarDuration.Long
                         )
                     }
                 }
@@ -274,8 +272,7 @@ fun AddProductScreen(
                     scope.launch {
                         snackbarHostState.showSnackbar(
                             message = event.message,
-                            duration = SnackbarDuration.Short,
-                            withDismissAction = true
+                            duration = SnackbarDuration.Long
                         )
                     }
                 }
