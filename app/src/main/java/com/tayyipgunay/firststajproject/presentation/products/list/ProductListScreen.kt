@@ -39,78 +39,102 @@ import kotlinx.coroutines.launch
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageChannel
+import com.tayyipgunay.firststajproject.presentation.common.events.UiEvent
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.emptyFlow
+import java.text.NumberFormat
+import java.util.Locale
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+
+
 // =====================================================
 // ================  PUBLIC API: SCREEN  ===============
 // =====================================================
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductListScreen(
     state: ProductListState,
     onIntent: (ProductListIntent) -> Unit,
     onAddClick: () -> Unit,
-    events: kotlinx.coroutines.flow.SharedFlow<ProductListEvent>? = null
+    events: SharedFlow<ProductListEvent>,           // (Şimdilik kullanılmıyor ama public API için bırakıldı)
+    uiEvents: SharedFlow<UiEvent>
 ) {
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = state.isRefreshing)
+    //val swipeRefreshState = rememberPullRefreshState(state.isRefreshing, onRefresh =)
+    val pullToRefreshState = rememberPullToRefreshState()
+
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+
     var showInfoDialog by remember { mutableStateOf<String?>(null) }
-    
-    // Event handling - kanal bazlı mesaj gösterimi
+
+    // UI Event'leri tek bir launch bloğunda topla
     LaunchedEffect(Unit) {
-        events?.collect { event ->
-            when (event) {
-                is ProductListEvent.ShowMessage -> {
-                    when (event.channel) {
+        uiEvents.collect { uiEvents ->
+            println("UI Event: ${uiEvents}")
+            when (uiEvents) {
+                is UiEvent.ShowMessage -> {
+                    when (uiEvents.channel) {
                         MessageChannel.Snackbar -> {
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    message = event.text,
-                                    duration = SnackbarDuration.Short,
-                                    withDismissAction = true
+                                    message = uiEvents.text,
+                                    duration = SnackbarDuration.Long,
+
                                 )
                             }
                         }
                         MessageChannel.Toast -> {
-                            Toast.makeText(context, event.text, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, uiEvents.text, Toast.LENGTH_LONG).show()
                         }
                         MessageChannel.Dialog -> {
-                            showInfoDialog = event.text
+                            showInfoDialog = uiEvents.text
                         }
                     }
                 }
-                else -> { /* Handle other events if needed */ }
+                is UiEvent.ShowConfirmDialog -> {
+                    // Gerekirse burada confirm dialog tetiklenir
+                }
             }
         }
     }
-    
+
     Scaffold(
         topBar = {
             ProductListTopBar(
                 selectedSort = state.selectedSort,
-                onSelectSort = { sort -> onIntent(ProductListIntent.ChangeSort(sort)) },
+                onSelectSort = { sort -> onIntent(ProductListIntent.ChangeSort(sort))
+                               },
                 onSelectComboSort = { combo -> onIntent(ProductListIntent.ChangeSortRaw(combo)) },
                 onAddClick = onAddClick
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        SwipeRefresh(
-            state = swipeRefreshState,
-            onRefresh = { onIntent(ProductListIntent.Refresh) }
+        PullToRefreshBox(
+            isRefreshing = state.isRefreshing,
+            onRefresh = { onIntent(ProductListIntent.Refresh) },
+            state = pullToRefreshState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
+                    //.padding(padding)
             ) {
                 // ---- Controls: Page / Size ----
                 PageSizeControls(
                     page = state.page,
                     size = state.size,
-                    onNextPage = { 
-                        // Sadece mevcut sayfa size'dan küçükse next page'e git
-                        if (state.items.size >= state.size) {
+                    onNextPage = {
+                        // Sayfada en az "size" kadar öğe varsa ve hasMorePages true ise ileri git
+                        if (state.items.size >= state.size && state.hasMorePages) {
                             onIntent(ProductListIntent.ChangePage(state.page + 1))
                         }
                     },
@@ -119,7 +143,7 @@ fun ProductListScreen(
                         val idx = options.indexOf(state.size).takeIf { it >= 0 } ?: 0
                         onIntent(ProductListIntent.ChangeSize(options[(idx + 1) % options.size]))
                     },
-                    hasMorePages = state.hasMorePages // Sonraki sayfa var mı?
+                    hasMorePages = state.hasMorePages
                 )
 
                 // ---- Content ----
@@ -138,7 +162,7 @@ fun ProductListScreen(
             }
         }
     }
-    
+
     // Info Dialog (MessageChannel.Dialog için)
     showInfoDialog?.let { msg ->
         AlertDialog(
@@ -174,7 +198,7 @@ private fun ProductListTopBar(
                 onSelect = onSelectSort,
                 onSelectCombo = onSelectComboSort
             )
-            Button(
+            TextButton(
                 onClick = onAddClick,
                 modifier = Modifier.padding(end = 8.dp)
             ) {
@@ -194,14 +218,10 @@ fun SortMenu(
     onSelect: (ProductSort) -> Unit,        // tekli sıralama (enum)
     onSelectCombo: (List<String>) -> Unit   // hibrit sıralama (çoklu query)
 ) {
-    // Menü açık/kapalı durumu
     var expanded by remember { mutableStateOf(false) }
 
-    // Tekli (basic) sıralama seçenekleri
     val basicOptions = remember {
         listOf(
-           // ProductSort.NAME_ASC,
-            //ProductSort.NAME_DESC,
             ProductSort.PRICE_ASC,
             ProductSort.PRICE_DESC,
             ProductSort.ACTIVE_FIRST,
@@ -210,10 +230,7 @@ fun SortMenu(
     }
 
     Box {
-        // Şu anki seçimi gösteren buton
-        TextButton(onClick = { expanded = true }
-        )
-        {
+        TextButton(onClick = { expanded = true }) {
             Text(
                 text = selected.label,
                 maxLines = 1,
@@ -221,26 +238,25 @@ fun SortMenu(
             )
         }
 
-        // Açılır menü
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
             // Tekli seçenekler
-            basicOptions.forEach { option->
+            basicOptions.forEach { option ->
                 SortMenuItem(
                     text = option.label,
                     checked = option == selected,
                     onClick = {
                         expanded = false
-                        onSelect(option) // ViewModel → ChangeSort(ProductSort)
+                        onSelect(option)
                     }
                 )
             }
 
-            Divider()//----
+            Divider()
 
-            // Hibrit presetler (çoklu sort)
+            // Hibrit presetler
             SortMenuItem(
                 text = ProductSort.ACTIVE_AND_CHEAP.label,
                 checked = false,
@@ -269,7 +285,7 @@ private fun SortMenuItem(
 ) {
     DropdownMenuItem(
         text = { Text(text) },
-        trailingIcon = { if (checked) Icon(Icons.Default.Check, contentDescription = null) },
+        trailingIcon = { if (checked) androidx.compose.material3.Icon(Icons.Default.Check, null) },
         onClick = onClick
     )
 }
@@ -286,13 +302,18 @@ private fun ProductList(
     LazyColumn(modifier) {
         items(
             items = items,
-            key = { it.id } // performans/animasyon için Listeyi çizdiğinde her elemanın kimliğini belirtiyorsun.
-
+            key = {
+                it.id
+            }
         ) { product ->
             ProductListItem(product)
         }
-        item { Spacer(Modifier.height(64.dp)) }
+        item {
+            Spacer(Modifier.height(64.dp))
+
+        }
     }
+
 }
 
 @Composable
@@ -318,8 +339,7 @@ fun ProductListItem(
                 verticalAlignment = Alignment.Top
             ) {
                 AsyncImage(
-                    model = Constants.BASE_URL.trimEnd('/') + "/" + (productSummary.image
-                        ?: "").trimStart('/'),
+                    model = buildImageUrl(Constants.BASE_URL, productSummary.image),
                     contentDescription = productSummary.name,
                     modifier = Modifier
                         .size(140.dp)
@@ -332,7 +352,7 @@ fun ProductListItem(
 
             Spacer(Modifier.height(16.dp))
 
-            // Product name - full width, no restrictions
+            // Product name
             Text(
                 text = productSummary.name,
                 style = MaterialTheme.typography.headlineSmall.copy(
@@ -340,8 +360,8 @@ fun ProductListItem(
                     lineHeight = 22.sp,
                     fontWeight = FontWeight.Medium
                 ),
-                maxLines = Int.MAX_VALUE, // No line limit
-                overflow = TextOverflow.Visible, // Show all text
+                maxLines = Int.MAX_VALUE,
+                overflow = TextOverflow.Visible,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -354,12 +374,11 @@ fun ProductListItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val priceText = remember(productSummary.price) {
+                    formatPriceTRY(productSummary.price)
+                }
                 Text(
-                    text = if (productSummary.price == productSummary.price.toLong().toDouble()) {
-                        productSummary.price.toLong().toString() + " TL"
-                    } else {
-                        String.format("%.2f TL", productSummary.price)
-                    },
+                    text = priceText,
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
@@ -370,7 +389,6 @@ fun ProductListItem(
         }
     }
 }
-
 
 // =====================================================
 // ================  SMALL UTIL COMPOSABLES  ===========
@@ -403,3 +421,20 @@ private fun PageSizeControls(
     }
 }
 
+// =====================================================
+// ======================  UTILS  ======================
+// =====================================================
+
+private fun buildImageUrl(baseUrl: String, path: String?): String {
+    val safeBase = baseUrl.trimEnd('/')
+    val safePath = (path ?: "").trimStart('/')
+    return "$safeBase/$safePath"
+}
+
+private fun formatPriceTRY(value: Double): String {
+    // Türkiye yereli ile her zaman 2 ondalık göster
+    val nf = NumberFormat.getCurrencyInstance(Locale("tr", "TR"))
+    // Varsayılan olarak "₺" öne gelir. " TL" tercih ediyorsan:
+    // return String.format(Locale("tr", "TR"), "%.2f TL", value)
+    return nf.format(value)
+}

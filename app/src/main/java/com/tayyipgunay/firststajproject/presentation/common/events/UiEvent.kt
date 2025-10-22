@@ -18,6 +18,4 @@ sealed interface UiEvent {
         val cancelText: String = "Hayır"
     ) : UiEvent
 
-    data object NavigateBack : UiEvent
-    data object NavigateToProductList : UiEvent
 }

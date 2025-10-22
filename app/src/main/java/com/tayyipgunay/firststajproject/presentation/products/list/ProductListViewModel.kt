@@ -2,6 +2,7 @@ package com.tayyipgunay.firststajproject.presentation.products.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tayyipgunay.firststajproject.core.error.userMessageFor
 import com.tayyipgunay.firststajproject.core.mvi.MVIComponent
 import com.tayyipgunay.firststajproject.core.util.Constants
 import com.tayyipgunay.firststajproject.core.util.Resource
@@ -9,6 +10,7 @@ import com.tayyipgunay.firststajproject.domain.repository.ProductRepository
 import com.tayyipgunay.firststajproject.domain.usecase.GetProductUseCase
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageType
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageChannel
+import com.tayyipgunay.firststajproject.presentation.common.events.UiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProductListViewModel @Inject constructor(
     private val getProductsUseCase: GetProductUseCase,
-) : ViewModel(),MVIComponent<ProductListIntent, ProductListState, ProductListEvent> {
+) : ViewModel(),MVIComponent<ProductListIntent, ProductListState, ProductListEvent, UiEvent> {
 
     private val _state = MutableStateFlow(ProductListState())
  override   val state = _state.asStateFlow()
@@ -30,6 +32,13 @@ class ProductListViewModel @Inject constructor(
     // ✅ Event (tek seferlik olay) - EKLENECEK
     private val _event = MutableSharedFlow<ProductListEvent>()
     override val event: SharedFlow<ProductListEvent> = _event.asSharedFlow()
+
+    private val _uiEvent = MutableSharedFlow<UiEvent>()
+    override val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
+
+
+
+
 
     init {
        loadProducts()
@@ -55,98 +64,85 @@ class ProductListViewModel @Inject constructor(
     private fun loadProducts(isNewPage: Boolean = false) {
         val currentState = state.value
         viewModelScope.launch {
-            try {
-                _state.update { 
-                    it.copy(
-                        isLoading = true, 
-                        error = null,
-                        // Yeni sayfa değilse items'ı koru
-                        items = if (isNewPage) it.items else emptyList()
-                    ) 
-                }
-                
-                println("🔍 Loading products: page=${currentState.page}, size=${currentState.size}, isNewPage=$isNewPage")
-                
-                getProductsUseCase.Execute(
-                    page = currentState.page,
-                    size = currentState.size,
-                    sort = currentState.sort
-                ).collect { result ->
-                    when (result) {
-                        is Resource.Success -> {
-                            val newItems = result.data ?: emptyList()
-                            println("✅ Products loaded: ${newItems.size} items")
-                            
-                            _state.update {
-                                val updatedItems = if (isNewPage && currentState.page > 0) {
-                                    // Yeni sayfa ekle
-                                    it.items + newItems
-                                } else {
-                                    // Yeni liste (ilk sayfa veya refresh)
-                                    newItems
-                                }
-                                
-                                it.copy(
-                                    isLoading = false,
-                                    items = updatedItems,
-                                    error = null,
-                                    hasMorePages = newItems.size >= currentState.size // Sonraki sayfa var mı?
-                                )
-                            }
-                            
-                            _event.emit(
-                                ProductListEvent.ShowMessage(
-                                    text = "Ürünler yüklendi",
-                                    type = MessageType.Success,
-                                    channel = MessageChannel.Toast
-                                )
-                            )
-                        }
-                        
-                        is Resource.Error -> {
-                            println("❌ Error loading products: ${result.message}")
-                            
-                            _state.update {
-                                it.copy(
-                                    isLoading = false,
-                                    error = result.message
-                                    // items'ı koru, sıfırlama
-                                )
-                            }
-                            
-                            _event.emit(
-                                ProductListEvent.ShowMessage(
-                                    text = "Ürünler yüklenemedi: ${result.message}",
-                                    type = MessageType.Error,
-                                    channel = MessageChannel.Snackbar
-                                )
-                            )
-                        }
-                        
-                        is Resource.Loading -> {
-                            _state.update { it.copy(isLoading = true, error = null) }
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                println("❌ Exception in loadProducts: ${e.message}")
-                _state.update {
-                    it.copy(
-                        isLoading = false,
-                        error = "İnternet bağlantısı hatası"
-                    )
-                }
-                _event.emit(
-                    ProductListEvent.ShowMessage(
-                        text = "İnternet bağlantısı hatası",
-                        type = MessageType.Error,
-                        channel = MessageChannel.Snackbar
-                    )
+            _state.update {
+                it.copy(
+                    isLoading = true,
+                    error = null,
+                    // Yeni sayfa değilse items'ı koru
+                    items = if (isNewPage) it.items else emptyList()
                 )
             }
+
+            println("🔍 Loading products: page=${currentState.page}, size=${currentState.size}, isNewPage=$isNewPage")
+
+            getProductsUseCase.Execute(
+                page = currentState.page,
+                size = currentState.size,
+                sort = currentState.sort
+            ).collect { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        val newItems = result.data ?: emptyList()
+                        println("✅ Products loaded: ${newItems.size} items")
+
+                        _state.update {
+                            val updatedItems = if (isNewPage && currentState.page > 0) {
+                                // Yeni sayfa ekle
+                                it.items + newItems
+                            } else {
+                                // Yeni liste (ilk sayfa veya refresh)
+                                newItems
+                            }
+
+                            it.copy(
+                                isLoading = false,
+                                items = updatedItems,
+                                error = null,
+                                hasMorePages = newItems.size >= currentState.size // Sonraki sayfa var mı?
+                            )
+                        }
+
+                        _uiEvent.emit(
+                            UiEvent.ShowMessage(
+                                text = "Ürünler yüklendi",
+                                type = MessageType.Success,
+                                channel = MessageChannel.Toast
+                            )
+                        )
+                    }
+
+                    is Resource.Error -> {
+                        val msg = userMessageFor(result.error)  // <<< BURASI KRİTİK
+
+                        println("❌ Error loading products: " +msg)
+
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                error = msg
+                                // items'ı koru, sıfırlama
+                            )
+                        }
+
+                        _uiEvent.emit(
+                            UiEvent.ShowMessage(
+                                text = "Ürünler yüklenemedi: ${result.message}",
+                                type = MessageType.Error,
+                                channel = MessageChannel.Snackbar
+                            )
+                        )
+                    }
+
+                    is Resource.Loading -> {
+                        _state.update { it.copy(isLoading = true, error = null) }
+                    }
+                }
+            }
+
+
+
         }
     }
-
 
     private fun changePage(page: Int) {
         val currentPage = state.value.page
@@ -208,8 +204,8 @@ class ProductListViewModel @Inject constructor(
                                 )
                             }
                             
-                            _event.emit(
-                                ProductListEvent.ShowMessage(
+                            _uiEvent.emit(
+                                UiEvent.ShowMessage(
                                     text = "Yenilendi",
                                     type = MessageType.Success,
                                     channel = MessageChannel.Toast
@@ -227,8 +223,8 @@ class ProductListViewModel @Inject constructor(
                                 )
                             }
                             
-                            _event.emit(
-                                ProductListEvent.ShowMessage(
+                            _uiEvent.emit(
+                                UiEvent.ShowMessage(
                                     text = "Yenileme başarısız: ${result.message}",
                                     type = MessageType.Error,
                                     channel = MessageChannel.Snackbar
@@ -249,8 +245,8 @@ class ProductListViewModel @Inject constructor(
                         error = "İnternet bağlantısı hatası"
                     )
                 }
-                _event.emit(
-                    ProductListEvent.ShowMessage(
+                _uiEvent.emit(
+                    UiEvent.ShowMessage(
                         text = "İnternet bağlantısı hatası",
                         type = MessageType.Error,
                         channel = MessageChannel.Snackbar

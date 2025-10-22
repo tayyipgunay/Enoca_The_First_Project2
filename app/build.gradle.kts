@@ -22,12 +22,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
-        // local.properties'ten API bilgilerini oku
-        val properties = Properties()
-        properties.load(project.rootProject.file("local.properties").inputStream())
-        
-        buildConfigField("String", "BASE_URL", "\"${properties.getProperty("BASE_URL")}\"")
-        buildConfigField("String", "API_TOKEN", "\"${properties.getProperty("API_TOKEN")}\"")
+        buildConfigField("String", "API_TOKEN", "\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc2MTE0MTQ1MSwiYXV0aCI6IlJPTEVfQURNSU4gUk9MRV9VU0VSIiwiaWF0IjoxNzYxMDU1MDUxLCJ1c2VySWQiOjF9.jdiBtSH_rzsQqx3rARIcr9srVVrxPU1Rl-Z07h47dzlaQ-BRaniG_g_ubq3grP3kN_8adYKwthZ8qjt3TgZ-AA\"")
+        buildConfigField("String", "BASE_URL", "\"http://37.156.246.102:9082/\"")
     }
 
     buildTypes {
@@ -108,6 +104,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.6")
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.34.0")
+
+    
     implementation("com.google.accompanist:accompanist-swiperefresh:0.34.0")
 
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
@@ -118,9 +116,6 @@ dependencies {
     implementation("androidx.paging:paging-runtime-ktx:3.3.2")
     implementation("androidx.paging:paging-compose:3.3.2")
 
-
-    //implementation(platform("androidx.compose:compose-bom:2025.02.00"))
-   // implementation("androidx.compose.material3:material3")
 
 
 

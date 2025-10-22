@@ -8,11 +8,13 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.tayyipgunay.firststajproject.core.util.Constants
 import com.tayyipgunay.firststajproject.data.auth.TokenStore
 import com.tayyipgunay.firststajproject.data.network.AuthInterceptor
+import com.tayyipgunay.firststajproject.data.network.HttpErrorMapper
 import com.tayyipgunay.firststajproject.data.remote.ProductApi
 import com.tayyipgunay.firststajproject.data.repository.ProductRepositoryImpl
 import com.tayyipgunay.firststajproject.domain.repository.ProductRepository
 import dagger.Module
 import dagger.Provides
+import dagger.Reusable
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
@@ -63,7 +65,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideMoshi(): Moshi = Moshi.Builder()
-        .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory()) // 🔴 şart
+        .add(KotlinJsonAdapterFactory()) // 🔴 şart
         .build()
 
     @Provides
@@ -82,13 +84,38 @@ object AppModule {
 
 
     @Provides
+    @Reusable // veya @Singleton (ikisi de olur; mapper state tutmuyor)
+    fun provideHttpErrorMapper(moshi: Moshi): HttpErrorMapper =
+        HttpErrorMapper(moshi)
+
+    // -- Repository binding --
+
+    @Provides
+    @Singleton
+    fun provideProductRepository(
+        api: ProductApi,
+        @ApplicationContext context: Context,
+        httpErrorMapper: HttpErrorMapper
+    ): ProductRepository =
+        ProductRepositoryImpl(
+            productApi = api,
+            context = context,        // gerek yoksa ctor'dan çıkarabilirsin
+            httpErrorMapper = httpErrorMapper
+        )
+
+}
+
+/*@Provides
     @Singleton
     fun provideProductRepository(
         api: ProductApi,
         @ApplicationContext context: Context
     ): ProductRepository =
-        ProductRepositoryImpl(api, context)
-}
+        ProductRepositoryImpl(
+            api, context,
+            httpErrorMapper = TODO()
+        )
+}*/
 
     /*@Provides
     @Singleton

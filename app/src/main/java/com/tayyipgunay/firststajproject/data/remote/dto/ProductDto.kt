@@ -7,9 +7,9 @@ import com.tayyipgunay.firststajproject.domain.model.ProductSummary
 @JsonClass(generateAdapter = true)
 data class ProductDto(
     val id: String,
-    val name: String,
+    val name: String?,
     val details: String?,
-    val isActive: Boolean,
+    val isActive: Boolean?,
     val image: String?,
     val arFilePath: String?,
     val price: Double,
@@ -19,9 +19,9 @@ data class ProductDto(
 fun ProductDto.toDomain(): Product =
     Product(
         id = id,
-        name = name,
+        name = name?:"a",
         details = details,
-        isActive = isActive,
+        isActive = isActive?:false,
         image = image,
         arFilePath = arFilePath,
         price = price,
@@ -29,12 +29,12 @@ fun ProductDto.toDomain(): Product =
         category = category?.toDomain()//?
     )
 
-fun ProductDto.toSummaryDomain(): ProductSummary{
-    return ProductSummary(
+fun ProductDto.toSummaryDomain(): ProductSummary {
+    return  ProductSummary(
         id = id,
-        name = name,
+        name = name?:"a",
         price = price,
-        isActive = isActive,
+        isActive = isActive?:false,
         image =image
     )
 }

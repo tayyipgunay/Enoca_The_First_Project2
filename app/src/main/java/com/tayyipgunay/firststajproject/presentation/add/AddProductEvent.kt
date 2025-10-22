@@ -5,7 +5,9 @@ import com.tayyipgunay.firststajproject.presentation.common.events.MessageType
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageChannel
 
 sealed interface AddProductEvent {
-    data class ShowMessage(
+
+
+   /* data class ShowMessage(
         val text: String,
         val type: MessageType = MessageType.Info,
         val channel: MessageChannel = MessageChannel.Snackbar
@@ -18,7 +20,7 @@ sealed interface AddProductEvent {
         val message: String,
         val confirmText: String = "Evet",
         val cancelText: String = "Hayır"
-    ) : AddProductEvent
+    ) : AddProductEvent*/
 
     // Sadece "global" validasyon mesajı göstermek istediğinde event kullan
     // (Alan bazlı hataları state'te tut)

@@ -55,7 +55,8 @@ class MainActivity : ComponentActivity() {
                     onAddClick = {
                         navController.navigate(Constants.ADD_PRODUCT)
                     },
-                    events = vm.event
+                    events = vm.event,
+                    uiEvents = vm.uiEvent
                 )
             }
 
@@ -71,8 +72,10 @@ class MainActivity : ComponentActivity() {
                         // Add tamamlandıysa listeye geri dön
                         navController.popBackStack()
                         // (İstersen listeyi yenilemek için: vmList.onIntent(ProductListIntent.Load))
-                    },
-                    events = vm.event
+                    }
+                    ,
+                    events = vm.event,
+                    uiEvents = vm.uiEvent
                 )
             }
         }

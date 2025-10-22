@@ -9,6 +9,7 @@ import com.tayyipgunay.firststajproject.domain.usecase.GetCategoriesUseCase
 import com.tayyipgunay.firststajproject.presentation.common.ConfirmId
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageType
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageChannel
+import com.tayyipgunay.firststajproject.presentation.common.events.UiEvent
 import com.tayyipgunay.firststajproject.presentation.products.list.ProductListEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,13 +24,22 @@ import javax.inject.Inject
 @HiltViewModel
 class AddProductViewModel @Inject constructor(
     private val addProductUseCase: AddProductUseCase,private val GetcategoriesUseCase: GetCategoriesUseCase
-) : ViewModel() , MVIComponent<AddProductIntent, AddProductState, AddProductEvent> {
+) : ViewModel() , MVIComponent<AddProductIntent, AddProductState, AddProductEvent, UiEvent> {
 
     private val _state = MutableStateFlow(AddProductState())
   override  val state = _state.asStateFlow()
 
     private val _event = MutableSharedFlow<AddProductEvent>()
     override val event: SharedFlow<AddProductEvent> = _event.asSharedFlow()
+
+
+    private val _uiEvent=MutableSharedFlow<UiEvent>()
+    override val uiEvent:SharedFlow<UiEvent> =_uiEvent.asSharedFlow()
+
+
+
+
+
 
 
 
@@ -106,7 +116,7 @@ class AddProductViewModel @Inject constructor(
             AddProductIntent.Save -> {
                 println("💾 Kaydetme onayı istendi")
                 viewModelScope.launch {
-                    _event.emit(AddProductEvent.ShowConfirmDialog(
+                    _uiEvent.emit(UiEvent.ShowConfirmDialog(
                         id = ConfirmId.SaveProduct,
                         title = "Ürün Kaydet",
                         message = "Bu ürünü kaydetmek istediğinizden emin misiniz?",
@@ -300,26 +310,25 @@ class AddProductViewModel @Inject constructor(
 
                         is Resource.Success -> {
                             println("✅ Success state - Product: ${res.data}")
-                            _event.emit(
-                                AddProductEvent.ShowMessage(
-                                    text = "Başarıyla kaydedildi!",
-                                    type = MessageType.Success,
-                                    channel = MessageChannel.Snackbar
-                                )
+                            _uiEvent.emit(
+                                UiEvent.ShowMessage(
+                                    text = "Ürün eklendi",
+                                    type = MessageType.Success
+
                             )
+                            )
+
                             _event.emit(AddProductEvent.NavigateBack)
                             _state.update { it.copy(isSaving = false, saved = true) }
                         }
 
                         is Resource.Error -> {
                             println("❌ Error state - Message: ${res.message}")
-                            _event.emit(
-                                AddProductEvent.ShowMessage(
-                                    text = "Hata: ${res.message}",
-                                    type = MessageType.Error,
-                                    channel = MessageChannel.Snackbar
-                                )
-                            )
+
+
+
+
+
                             _state.update { it.copy(isSaving = false, error = res.message) }
                         }
                     }
