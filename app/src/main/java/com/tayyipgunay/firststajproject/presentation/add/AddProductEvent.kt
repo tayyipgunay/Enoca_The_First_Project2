@@ -5,6 +5,8 @@ import com.tayyipgunay.firststajproject.presentation.common.events.MessageType
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageChannel
 
 sealed interface AddProductEvent {
+}
+
 
 
    /* data class ShowMessage(
@@ -24,7 +26,7 @@ sealed interface AddProductEvent {
 
     // Sadece "global" validasyon mesajı göstermek istediğinde event kullan
     // (Alan bazlı hataları state'te tut)
-    data class ShowValidationError(val field: FieldId, val message: String) : AddProductEvent
+   /* data class ShowValidationError(val field: FieldId, val message: String) : AddProductEvent
 
     // Navigasyon
     data object NavigateBack : AddProductEvent
@@ -35,4 +37,4 @@ sealed interface AddProductEvent {
 }
 
 // Alan kimlikleri (enum/ sealed ile type-safe)
-enum class FieldId { Name, Price, Image, Category }
+enum class FieldId { Name, Price, Image, Category }*/

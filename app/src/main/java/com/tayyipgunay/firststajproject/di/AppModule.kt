@@ -12,6 +12,8 @@ import com.tayyipgunay.firststajproject.data.network.HttpErrorMapper
 import com.tayyipgunay.firststajproject.data.remote.ProductApi
 import com.tayyipgunay.firststajproject.data.repository.ProductRepositoryImpl
 import com.tayyipgunay.firststajproject.domain.repository.ProductRepository
+import com.tayyipgunay.firststajproject.presentation.add.AddProductReducer
+import com.tayyipgunay.firststajproject.presentation.products.list.ProductListReducer
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
@@ -103,8 +105,16 @@ object AppModule {
             httpErrorMapper = httpErrorMapper
         )
 
-}
 
+    @Provides
+    @Singleton
+    fun provideProductListReducer(): ProductListReducer = ProductListReducer()
+
+
+    @Provides
+    @Singleton
+    fun provideAddProductReducer(): AddProductReducer = AddProductReducer()
+}
 /*@Provides
     @Singleton
     fun provideProductRepository(

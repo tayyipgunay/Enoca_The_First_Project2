@@ -71,6 +71,7 @@ class ProductRepositoryImpl @Inject constructor(
 
             if (resp.isSuccessful) {
                 println("✅ API çağrısı başarılı!")
+
                 println("✅ Response code: ${resp.code()}")
 
                 resp.body()?.let { dto ->
@@ -119,7 +120,11 @@ class ProductRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 println("✅ API çağrısı başarılı!")
                 println("✅ Response code: ${response.code()}")
+
                 val responseBody = response.body()
+                responseBody?.forEach{
+                    println("name: ${it.name}")
+                }?: println("Empty response body")
 
                 // DTO -> Summary domain map
                 val summariess = responseBody?.map { it.toSummaryDomain() }
@@ -160,7 +165,6 @@ override suspend fun getCategories(
          val err = response.errorBody()?.string()
          println("❌ API çağrısı başarısız!    " + err)
         //  emit(Resource.Error("Sunucu hatası (${response.code()})"))
-
          emit(Resource.Error(httpErrorMapper.map(response)))
 
      }

@@ -20,6 +20,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tayyipgunay.firststajproject.core.util.Constants
+import com.tayyipgunay.firststajproject.presentation.add.AddProductContract
+import com.tayyipgunay.firststajproject.presentation.products.list.ProductListContract
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -46,36 +48,38 @@ class MainActivity : ComponentActivity() {
         ) {
             // ---------- Product List ----------
             composable(Constants.PRODUCTS) {
-                val vm: ProductListViewModel = hiltViewModel()
-                val state by vm.state.collectAsStateWithLifecycle()
+                val pr: ProductListViewModel = hiltViewModel()
+                val state by pr.state.collectAsStateWithLifecycle()
 
                 ProductListScreen(
                     state = state,
-                    onIntent = vm::onIntent,
+                    onIntent = pr::onIntent,
                     onAddClick = {
                         navController.navigate(Constants.ADD_PRODUCT)
                     },
-                    events = vm.event,
-                    uiEvents = vm.uiEvent
+                    effect = pr.effect,
+                    onNavigateAdd = {
+
+                    },
+                    onNavigateDetail = {
+
+                    }
+
+                    //  uiEvents = vm.uiEvent
                 )
             }
 
             // ---------- Add Product ----------
             composable(Constants.ADD_PRODUCT) {
-                val vm: AddProductViewModel = hiltViewModel()
-                val state by vm.state.collectAsStateWithLifecycle()
-
+                val Advm: AddProductViewModel = hiltViewModel()
+                val state by Advm.state.collectAsStateWithLifecycle()
                 AddProductScreen(
                     state = state,
-                    onIntent = vm::onIntent,
-                    onSavedNavigateBack = {
-                        // Add tamamlandıysa listeye geri dön
-                        navController.popBackStack()
-                        // (İstersen listeyi yenilemek için: vmList.onIntent(ProductListIntent.Load))
-                    }
-                    ,
-                    events = vm.event,
-                    uiEvents = vm.uiEvent
+                    onIntent = {
+                        Advm.onIntent(it)
+                    },
+                    onSavedNavigateBack = { navController.popBackStack() },
+                    effect = Advm.effect
                 )
             }
         }

@@ -4,7 +4,7 @@ import com.tayyipgunay.firststajproject.domain.model.Product
 import com.tayyipgunay.firststajproject.domain.model.ProductSummary
 
 
-data class ProductListState(
+/*data class ProductListState(
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
     val items: List<ProductSummary> = emptyList(),
@@ -14,4 +14,4 @@ data class ProductListState(
     val sort: List<String> = listOf("id,desc"),
     val selectedSort: ProductSort = ProductSort.ACTIVE_FIRST,
     val hasMorePages: Boolean = true // Sonraki sayfa var mı?
-)
+)*/

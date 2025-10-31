@@ -4,7 +4,7 @@ import android.net.Uri
 import com.tayyipgunay.firststajproject.domain.model.Category
 import com.tayyipgunay.firststajproject.domain.model.ModelTypeUi
 
-data class AddProductState(
+/*data class AddProductState(
     /* val name: String = "",
      val details: String = "",
      val isActive: Boolean = true,
@@ -67,4 +67,4 @@ data class AddProductState(
     val error: String? = null,
 
     )
-
+*/

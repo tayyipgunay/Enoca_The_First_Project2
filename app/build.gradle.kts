@@ -22,7 +22,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
-        buildConfigField("String", "API_TOKEN", "\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc2MTE0MTQ1MSwiYXV0aCI6IlJPTEVfQURNSU4gUk9MRV9VU0VSIiwiaWF0IjoxNzYxMDU1MDUxLCJ1c2VySWQiOjF9.jdiBtSH_rzsQqx3rARIcr9srVVrxPU1Rl-Z07h47dzlaQ-BRaniG_g_ubq3grP3kN_8adYKwthZ8qjt3TgZ-AA\"")
+        buildConfigField("String", "API_TOKEN", "\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc2MTkwMjE4OSwiYXV0aCI6IlJPTEVfQURNSU4gUk9MRV9VU0VSIiwiaWF0IjoxNzYxODE1Nzg5LCJ1c2VySWQiOjF9.BLcNrHLUEDApqe7xPOHJapZshM0zb5jvcDMt-fUYi6e9asizKA8_o9JWkHSsOUqtuoKAfYPNwoY28hPlPP1_rg\"")
         buildConfigField("String", "BASE_URL", "\"http://37.156.246.102:9082/\"")
     }
 

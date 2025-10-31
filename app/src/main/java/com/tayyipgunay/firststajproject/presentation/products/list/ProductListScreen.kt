@@ -57,11 +57,15 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductListScreen(
-    state: ProductListState,
-    onIntent: (ProductListIntent) -> Unit,
+    state:ProductListContract.State,
+    onIntent: (ProductListContract.Intent) -> Unit,
     onAddClick: () -> Unit,
-    events: SharedFlow<ProductListEvent>,           // (Şimdilik kullanılmıyor ama public API için bırakıldı)
-    uiEvents: SharedFlow<UiEvent>
+    effect: SharedFlow<ProductListContract.Effect>,
+
+    onNavigateAdd: () -> Unit,                         // ✅ nav callback
+    onNavigateDetail: (String) -> Unit                 // ✅ nav callback
+    //  uiEvents: SharedFlow<UiEvent>
+
 ) {
     //val swipeRefreshState = rememberPullRefreshState(state.isRefreshing, onRefresh =)
     val pullToRefreshState = rememberPullToRefreshState()
@@ -74,30 +78,34 @@ fun ProductListScreen(
 
     // UI Event'leri tek bir launch bloğunda topla
     LaunchedEffect(Unit) {
-        uiEvents.collect { uiEvents ->
-            println("UI Event: ${uiEvents}")
-            when (uiEvents) {
-                is UiEvent.ShowMessage -> {
-                    when (uiEvents.channel) {
+        effect.collect { effect ->
+            println("UI Event: ${effect}")
+            when (effect) {
+                is ProductListContract.Effect.ShowMessage -> {
+                    when (effect.channel) {
                         MessageChannel.Snackbar -> {
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    message = uiEvents.text,
+                                    message = effect.text,
                                     duration = SnackbarDuration.Long,
 
                                 )
                             }
                         }
                         MessageChannel.Toast -> {
-                            Toast.makeText(context, uiEvents.text, Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, effect.text, Toast.LENGTH_LONG).show()
                         }
                         MessageChannel.Dialog -> {
-                            showInfoDialog = uiEvents.text
+                            showInfoDialog = effect.text
                         }
                     }
                 }
-                is UiEvent.ShowConfirmDialog -> {
-                    // Gerekirse burada confirm dialog tetiklenir
+
+                ProductListContract.Effect.NavigateToAdd -> {
+
+                }
+                is ProductListContract.Effect.NavigateToDetail -> {
+
                 }
             }
         }
@@ -107,9 +115,9 @@ fun ProductListScreen(
         topBar = {
             ProductListTopBar(
                 selectedSort = state.selectedSort,
-                onSelectSort = { sort -> onIntent(ProductListIntent.ChangeSort(sort))
+                onSelectSort = { sort->onIntent(ProductListContract.Intent.ChangeSort(sort))
                                },
-                onSelectComboSort = { combo -> onIntent(ProductListIntent.ChangeSortRaw(combo)) },
+                onSelectComboSort = { combo -> onIntent(ProductListContract.Intent.ChangeSortRaw(combo)) },
                 onAddClick = onAddClick
             )
         },
@@ -117,7 +125,7 @@ fun ProductListScreen(
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = state.isRefreshing,
-            onRefresh = { onIntent(ProductListIntent.Refresh) },
+            onRefresh = { onIntent(ProductListContract.Intent.Refresh) },
             state = pullToRefreshState,
             modifier = Modifier
                 .fillMaxSize()
@@ -135,13 +143,13 @@ fun ProductListScreen(
                     onNextPage = {
                         // Sayfada en az "size" kadar öğe varsa ve hasMorePages true ise ileri git
                         if (state.items.size >= state.size && state.hasMorePages) {
-                            onIntent(ProductListIntent.ChangePage(state.page + 1))
+                            onIntent(ProductListContract.Intent.ChangePage(state.page + 1))
                         }
                     },
                     onCycleSize = {
                         val options = listOf(10, 20, 50)
                         val idx = options.indexOf(state.size).takeIf { it >= 0 } ?: 0
-                        onIntent(ProductListIntent.ChangeSize(options[(idx + 1) % options.size]))
+                        onIntent(ProductListContract.Intent.ChangeSize(options[(idx + 1) % options.size]))
                     },
                     hasMorePages = state.hasMorePages
                 )
@@ -151,7 +159,7 @@ fun ProductListScreen(
                     state.isLoading && !state.isRefreshing -> LoadingStateCard()
                     state.error != null -> ErrorStateCard(
                         message = state.error,
-                        onRetry = { onIntent(ProductListIntent.Retry) }
+                        onRetry = { onIntent(ProductListContract.Intent.Refresh) }
                     )
                     state.items.isEmpty() -> EmptyStateCard()
                     else -> ProductList(
@@ -354,7 +362,7 @@ fun ProductListItem(
 
             // Product name
             Text(
-                text = productSummary.name,
+                text =productSummary.name,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontSize = 16.sp,
                     lineHeight = 22.sp,

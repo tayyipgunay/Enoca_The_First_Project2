@@ -58,6 +58,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageChannel
 import com.tayyipgunay.firststajproject.presentation.common.events.UiEvent
+import com.tayyipgunay.firststajproject.presentation.products.list.ProductListContract
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
@@ -87,15 +88,15 @@ private fun AddProductTopBar() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddProductForm(
-    state: AddProductState,
-    onIntent: (AddProductIntent) -> Unit
+    state:AddProductContract.State,
+    onIntent: (AddProductContract.Intent) -> Unit
 ) {
     // Dosya seçiciler
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        onIntent(AddProductIntent.Image(uri))
+        onIntent(AddProductContract.Intent.Image(uri))
     }
     val arPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        onIntent(AddProductIntent.ArFile(uri))
+        onIntent(AddProductContract.Intent.ArFile(uri))
     }
 
     // UI state (yerel) — istersen bunları da VM state’ine taşıyabilirsin
@@ -118,7 +119,7 @@ private fun AddProductForm(
     ) {
         OutlinedTextField(
             value = state.name,
-            onValueChange = { onIntent(AddProductIntent.Name(it)) },
+            onValueChange = { onIntent(AddProductContract.Intent.Name(it)) },
             label = { Text("Name*") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
@@ -126,14 +127,14 @@ private fun AddProductForm(
 
         OutlinedTextField(
             value = state.details,
-            onValueChange = { onIntent(AddProductIntent.Details(it)) },
+            onValueChange = { onIntent(AddProductContract.Intent.Details(it)) },
             label = { Text("Details") },
             modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = state.priceInput,
-            onValueChange = { onIntent(AddProductIntent.Price(it)) }, // VM’de BigDecimal parse + validation
+            onValueChange = { onIntent(AddProductContract.Intent.Price(it)) }, // VM’de BigDecimal parse + validation
             label = { Text("Price*") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
@@ -166,7 +167,7 @@ private fun AddProductForm(
                         text = { Text(mt.label) },
                         onClick = {
                             modelTypeExpanded = false
-                            onIntent(AddProductIntent.ModelType(mt.value))
+                            onIntent(AddProductContract.Intent.ModelType(mt.value))
                         }
                     )
                 }
@@ -199,7 +200,7 @@ private fun AddProductForm(
                         text = { Text(category.name) },
                         onClick = {
                             categoryExpanded = false
-                            onIntent(AddProductIntent.Category(category.id))
+                            onIntent(AddProductContract.Intent.Category(category.id))
                         }
                     )
                 }
@@ -210,7 +211,7 @@ private fun AddProductForm(
         LabeledSwitchRow(
             label = "Active",
             checked = state.isActive,
-            onCheckedChange = { onIntent(AddProductIntent.IsActive(it)) }
+            onCheckedChange = { onIntent(AddProductContract.Intent.IsActive(it)) }
         )
 
         // Dosya butonları
@@ -262,49 +263,67 @@ private fun FilePickRow(
  * ========================= */
 @Composable
 fun AddProductScreen(
-    state: AddProductState,
-    onIntent: (AddProductIntent) -> Unit,
+    state:AddProductContract.State,
+    onIntent: (AddProductContract.Intent) -> Unit,
     onSavedNavigateBack: () -> Unit,
-    events: SharedFlow<AddProductEvent>,
-    uiEvents: SharedFlow<UiEvent>
-) {
-    var showConfirmDialog by remember { mutableStateOf<UiEvent.ShowConfirmDialog?>(null) }
+    effect:SharedFlow< AddProductContract.Effect>
+    ) {
     var showInfoDialog by remember { mutableStateOf<String?>(null) }
+    var showConfirmDialog by remember { mutableStateOf<String?>(null) }
+
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val scroll = rememberScrollState()
 
-    // UI EVENTS
     LaunchedEffect(Unit) {
-        uiEvents.collect { evt ->
-            when (evt) {
-                is UiEvent.ShowConfirmDialog -> showConfirmDialog = evt
-                is UiEvent.ShowMessage -> when (evt.channel) {
-                    MessageChannel.Snackbar -> snackbarHostState.showSnackbar(evt.text, duration = SnackbarDuration.Long)
-                    MessageChannel.Toast -> Toast.makeText(context, evt.text, Toast.LENGTH_SHORT).show()
-                    MessageChannel.Dialog -> showInfoDialog = evt.text
+        effect.collect { effect ->
+            when (effect) {
+                is AddProductContract.Effect.ShowMessage ->
+                    when (effect.channel) {
+                        MessageChannel.Snackbar -> {
+                            snackbarHostState.showSnackbar(
+                                message = effect.text,
+                                duration = SnackbarDuration.Long
+                            )
+                        }
+                        MessageChannel.Toast -> {
+                            Toast.makeText(context, effect.text, Toast.LENGTH_LONG).show()
+                        }
+                        MessageChannel.Dialog -> {
+                            showInfoDialog = effect.text
+                        }
+                    }
+
+                AddProductContract.Effect.NavigateBack -> {
+
+                }
+
+                AddProductContract.Effect.NavigateToProductList -> {
+
+                }
+
+                is AddProductContract.Effect.ShowConfirmDialog -> {
+                }
+
+                is AddProductContract.Effect.ShowFileError -> {
+
+                }
+
+                is AddProductContract.Effect.ShowFileError -> {
+
                 }
             }
         }
     }
 
-    // DOMAIN/SCREEN EVENTS
-    LaunchedEffect(Unit) {
-        events.collect { e ->
-            when (e) {
-                is AddProductEvent.ShowValidationError ->
-                    snackbarHostState.showSnackbar(e.message, duration = SnackbarDuration.Long)
-                is AddProductEvent.ShowFileError ->
-                    snackbarHostState.showSnackbar(e.message, duration = SnackbarDuration.Long)
-                AddProductEvent.NavigateBack -> { /* nav */ }
-                AddProductEvent.NavigateToProductList -> { /* nav */ }
-            }
-        }
-    }
+
+
+
 
     // Navigation side-effects
     LaunchedEffect(state.saved) { if (state.saved) onSavedNavigateBack() }
-    LaunchedEffect(Unit) { onIntent(AddProductIntent.Init) }
+
+    LaunchedEffect(Unit) { onIntent(AddProductContract.Intent.Init) }
 
     Scaffold(
         topBar = { AddProductTopBar() },
@@ -324,11 +343,11 @@ fun AddProductScreen(
             Spacer(Modifier.height(8.dp))
 
             Button(
-                onClick = { onIntent(AddProductIntent.Save) },
+                onClick = { onIntent(AddProductContract.Intent.Submit)},
                 enabled = !state.isSaving,
                 modifier = Modifier
                     .padding(16.dp)
-                    .fillMaxWidth()
+                    //.fillMaxWidth()
             ) {
                 Text(if (state.isSaving) "Kaydediliyor..." else "Kaydet")
             }
@@ -344,25 +363,25 @@ fun AddProductScreen(
     }
 
     // Confirm Dialog
-    showConfirmDialog?.let { dialog ->
+    /*showInfoDialog?.let { dialog ->
         AlertDialog(
             onDismissRequest = { showConfirmDialog = null },
-            title = { Text(dialog.title) },
-            text = { Text(dialog.message) },
+            title = { Text(dialog) },
+            text = { Text(dialog) },
             confirmButton = {
                 TextButton(onClick = {
                     showConfirmDialog = null
-                    onIntent(AddProductIntent.Confirm(dialog.id, true))
-                }) { Text(dialog.confirmText) }
+                    onIntent(AddProductContract.Intent.Confirm(dialog, true))
+                }) { Text(dialog) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     showConfirmDialog = null
-                    onIntent(AddProductIntent.Confirm(dialog.id, false))
-                }) { Text(dialog.cancelText) }
+                    onIntent(AddProductContract.Intent.Confirm(dialog.id, false))
+                }) { Text(dialog) }
             }
         )
-    }
+    }*/
 
     // Info Dialog
     showInfoDialog?.let { msg ->

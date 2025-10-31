@@ -3,7 +3,7 @@ package com.tayyipgunay.firststajproject.presentation.add
 import android.net.Uri
 import com.tayyipgunay.firststajproject.presentation.common.ConfirmId
 
-sealed interface AddProductIntent {
+/*sealed interface AddProductIntent {
     data object Init : AddProductIntent
 
     // Form değişimleri
@@ -25,7 +25,7 @@ sealed interface AddProductIntent {
     data class Confirm(val id: ConfirmId, val confirmed: Boolean) : AddProductIntent
 
     // Hata temizleme
-    data class ClearError(val field: FieldId) : AddProductIntent
+    data class ClearError(val field: AddProductContract.FieldId) : AddProductIntent
     
     // Veri yükleme
     data object LoadCategories : AddProductIntent
@@ -36,4 +36,4 @@ sealed interface AddProductIntent {
 
     // Navigasyon
     data object Back : AddProductIntent
-}
+}*/

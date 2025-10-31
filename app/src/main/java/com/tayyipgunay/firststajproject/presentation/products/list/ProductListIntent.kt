@@ -3,7 +3,7 @@ package com.tayyipgunay.firststajproject.presentation.products.list
 
 
 
-sealed interface ProductListIntent {
+/*sealed interface ProductListIntent {
     // Data Loading
     data object Load : ProductListIntent
     data object Retry : ProductListIntent
@@ -22,4 +22,4 @@ sealed interface ProductListIntent {
 
     // Item Actions
 
-}
+}*/
