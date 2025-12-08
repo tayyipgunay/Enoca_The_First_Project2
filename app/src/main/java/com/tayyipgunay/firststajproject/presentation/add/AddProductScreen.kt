@@ -57,8 +57,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageChannel
-import com.tayyipgunay.firststajproject.presentation.common.events.UiEvent
-import com.tayyipgunay.firststajproject.presentation.products.list.ProductListContract
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
@@ -362,26 +360,7 @@ fun AddProductScreen(
         }
     }
 
-    // Confirm Dialog
-    /*showInfoDialog?.let { dialog ->
-        AlertDialog(
-            onDismissRequest = { showConfirmDialog = null },
-            title = { Text(dialog) },
-            text = { Text(dialog) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showConfirmDialog = null
-                    onIntent(AddProductContract.Intent.Confirm(dialog, true))
-                }) { Text(dialog) }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showConfirmDialog = null
-                    onIntent(AddProductContract.Intent.Confirm(dialog.id, false))
-                }) { Text(dialog) }
-            }
-        )
-    }*/
+
 
     // Info Dialog
     showInfoDialog?.let { msg ->

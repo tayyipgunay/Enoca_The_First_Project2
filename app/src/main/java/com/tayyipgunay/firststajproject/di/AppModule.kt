@@ -1,7 +1,5 @@
 package com.tayyipgunay.firststajproject.di
 
-import android.app.Application
-import android.content.ContentResolver
 import android.content.Context
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -11,7 +9,9 @@ import com.tayyipgunay.firststajproject.data.network.AuthInterceptor
 import com.tayyipgunay.firststajproject.data.network.HttpErrorMapper
 import com.tayyipgunay.firststajproject.data.remote.ProductApi
 import com.tayyipgunay.firststajproject.data.repository.ProductRepositoryImpl
+import com.tayyipgunay.firststajproject.data.repository.ProductRepositoryImpl2
 import com.tayyipgunay.firststajproject.domain.repository.ProductRepository
+import com.tayyipgunay.firststajproject.domain.repository.ProductRepository2
 import com.tayyipgunay.firststajproject.presentation.add.AddProductReducer
 import com.tayyipgunay.firststajproject.presentation.products.list.ProductListReducer
 import dagger.Module
@@ -24,7 +24,6 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.io.File
 import javax.inject.Singleton
 
 
@@ -105,16 +104,30 @@ object AppModule {
             httpErrorMapper = httpErrorMapper
         )
 
-
     @Provides
     @Singleton
     fun provideProductListReducer(): ProductListReducer = ProductListReducer()
 
 
+
     @Provides
     @Singleton
     fun provideAddProductReducer(): AddProductReducer = AddProductReducer()
-}
+
+    @Provides
+    @Singleton
+    fun provideProductRepository2(
+        api: ProductApi,
+        errorMapper: HttpErrorMapper,
+        @ApplicationContext context: Context
+    ): ProductRepository2 =
+        ProductRepositoryImpl2(
+            api,
+            errorMapper = errorMapper
+
+    )
+    }
+
 /*@Provides
     @Singleton
     fun provideProductRepository(

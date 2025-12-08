@@ -13,7 +13,7 @@ data class ProductDto(
     val image: String?,
     val arFilePath: String?,
     val price: Double,
-    val modelType: Int,
+    val modelType: Int?,
     val category: CategoryDto?
 )
 fun ProductDto.toDomain(): Product =
@@ -25,7 +25,7 @@ fun ProductDto.toDomain(): Product =
         image = image,
         arFilePath = arFilePath,
         price = price,
-        modelType = modelType,
+        modelType = modelType?:1,
         category = category?.toDomain()//?
     )
 

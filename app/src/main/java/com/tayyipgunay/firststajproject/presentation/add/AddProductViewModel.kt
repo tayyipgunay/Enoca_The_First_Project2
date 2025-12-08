@@ -9,8 +9,6 @@ import com.tayyipgunay.firststajproject.domain.usecase.GetCategoriesUseCase
 import com.tayyipgunay.firststajproject.presentation.common.ConfirmId
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageType
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageChannel
-import com.tayyipgunay.firststajproject.presentation.common.events.UiEvent
-import com.tayyipgunay.firststajproject.presentation.products.list.ProductListContract
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

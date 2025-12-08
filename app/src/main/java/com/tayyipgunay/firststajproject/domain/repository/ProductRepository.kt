@@ -22,11 +22,6 @@ interface ProductRepository {
     ):Flow<Resource<Product>>
 
 
-    suspend fun getProducts(
-        page: Int,
-        size: Int,
-        sort: List<String>
-    ): Flow<Resource<List<ProductSummary>>>
 
 
     suspend fun getCategories(

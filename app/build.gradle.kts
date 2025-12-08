@@ -1,5 +1,13 @@
+import java.io.FileInputStream
 import java.util.Properties
-
+val localProps = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) {
+        load(FileInputStream(file))
+    } else {
+        println("local.properties bulunamadı!")
+    }
+}
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -21,103 +29,110 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        
-        buildConfigField("String", "API_TOKEN", "\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc2MTkwMjE4OSwiYXV0aCI6IlJPTEVfQURNSU4gUk9MRV9VU0VSIiwiaWF0IjoxNzYxODE1Nzg5LCJ1c2VySWQiOjF9.BLcNrHLUEDApqe7xPOHJapZshM0zb5jvcDMt-fUYi6e9asizKA8_o9JWkHSsOUqtuoKAfYPNwoY28hPlPP1_rg\"")
-        buildConfigField("String", "BASE_URL", "\"http://37.156.246.102:9082/\"")
-    }
+        buildConfigField(
+            "String",
+            "API_TOKEN",
+            "\"${localProps.getProperty("API_TOKEN")}\""
+        )
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+        buildConfigField(
+            "String",
+            "BASE_URL",
+            "\"${localProps.getProperty("BASE_URL")}\""
+        )
+
+        buildTypes {
+            release {
+                isMinifyEnabled = false
+                proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+                )
+            }
+        }
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_11
+            targetCompatibility = JavaVersion.VERSION_11
+        }
+        kotlinOptions {
+            jvmTarget = "11"
+        }
+        buildFeatures {
+            compose = true
+            buildConfig = true
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
-        buildConfig = true
-    }
 }
 
-dependencies {
+    dependencies {
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-   // implementation(libs.androidx.navigation.compose.jvmstubs)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+        implementation(libs.androidx.core.ktx)
+        implementation(libs.androidx.lifecycle.runtime.ktx)
+        implementation(libs.androidx.activity.compose)
+        implementation(platform(libs.androidx.compose.bom))
+        implementation(libs.androidx.ui)
+        implementation(libs.androidx.ui.graphics)
+        implementation(libs.androidx.ui.tooling.preview)
+        implementation(libs.androidx.material3)
+        testImplementation(libs.junit)
+        androidTestImplementation(libs.androidx.junit)
+        androidTestImplementation(libs.androidx.espresso.core)
+        androidTestImplementation(platform(libs.androidx.compose.bom))
+        androidTestImplementation(libs.androidx.ui.test.junit4)
+        debugImplementation(libs.androidx.ui.tooling)
+        debugImplementation(libs.androidx.ui.test.manifest)
 
-    implementation("androidx.navigation:navigation-compose:2.8.3")
+        implementation("androidx.navigation:navigation-compose:2.8.3")
 
-    // ---- Lifecycle / Coroutines ----
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+        // ---- Lifecycle / Coroutines ----
+        implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 
-    // ---- Hilt (KSP ile) ----
-    implementation("com.google.dagger:hilt-android:2.52")
-    ksp("com.google.dagger:hilt-compiler:2.52")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+        // ---- Hilt (KSP ile) ----
+        implementation("com.google.dagger:hilt-android:2.52")
+        ksp("com.google.dagger:hilt-compiler:2.52")
+        implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
-    // ---- Retrofit + OkHttp ----
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-moshi:2.11.0")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+        // ---- Retrofit + OkHttp ----
+        implementation("com.squareup.retrofit2:retrofit:2.11.0")
+        implementation("com.squareup.retrofit2:converter-moshi:2.11.0")
+        implementation("com.squareup.okhttp3:okhttp:4.12.0")
+        implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
-    // ---- Moshi (JSON parse, codegen KSP ile) ----
-    implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
-    ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.1")
+        // ---- Moshi (JSON parse, codegen KSP ile) ----
+        implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
+        ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.1")
 
-    // ---- Coil (resim yükleme) ----
-    implementation("io.coil-kt:coil-compose:2.7.0")
 
-    // ---- Test ----
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2025.02.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+        // ---- Test ----
+        testImplementation("junit:junit:4.13.2")
+        androidTestImplementation("androidx.test.ext:junit:1.2.1")
+        androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+        androidTestImplementation(platform("androidx.compose:compose-bom:2025.02.00"))
+        androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+        debugImplementation("androidx.compose.ui:ui-test-manifest")
 
 
 
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.6")
-    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.34.0")
-
-    
-    implementation("com.google.accompanist:accompanist-swiperefresh:0.34.0")
-
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
-    testImplementation("app.cash.turbine:turbine:1.1.0")
-
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
-
-    implementation("androidx.paging:paging-runtime-ktx:3.3.2")
-    implementation("androidx.paging:paging-compose:3.3.2")
+        implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.6")
+        implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
+        implementation("com.google.accompanist:accompanist-systemuicontroller:0.34.0")
 
 
+        implementation("com.google.accompanist:accompanist-swiperefresh:0.34.0")
 
+        testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+        testImplementation("app.cash.turbine:turbine:1.1.0")
 
+        implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
 
-}
+        implementation("androidx.paging:paging-runtime-ktx:3.3.2")
+        implementation("androidx.paging:paging-compose:3.3.2")
+
+        // ---- Coil (resim yükleme) ----
+        // implementation("io.coil-kt:coil-compose:3.3.0")
+       // implementation("io.coil-kt.coil3:coil-compose:3.3.0")
+       // implementation("io.coil-kt.coil3:coil-network-okhttp:3.3.0")
+
+        implementation("io.coil-kt:coil-compose:2.7.0")
+    }
