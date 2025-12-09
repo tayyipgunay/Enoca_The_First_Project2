@@ -1,4 +1,4 @@
-package com.tayyipgunay.firststajproject.presentation.products.list
+package com.tayyipgunay.firststajproject.presentation.feature.products.list
 
 import androidx.compose.ui.platform.LocalContext
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageChannel

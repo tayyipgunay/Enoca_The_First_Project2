@@ -5,15 +5,16 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.tayyipgunay.firststajproject.core.util.Constants
 import com.tayyipgunay.firststajproject.data.auth.TokenStore
-import com.tayyipgunay.firststajproject.data.network.AuthInterceptor
 import com.tayyipgunay.firststajproject.data.network.HttpErrorMapper
 import com.tayyipgunay.firststajproject.data.remote.ProductApi
 import com.tayyipgunay.firststajproject.data.repository.ProductRepositoryImpl
 import com.tayyipgunay.firststajproject.data.repository.ProductRepositoryImpl2
 import com.tayyipgunay.firststajproject.domain.repository.ProductRepository
 import com.tayyipgunay.firststajproject.domain.repository.ProductRepository2
-import com.tayyipgunay.firststajproject.presentation.add.AddProductReducer
-import com.tayyipgunay.firststajproject.presentation.products.list.ProductListReducer
+import com.tayyipgunay.firststajproject.presentation.feature.add.AddProductReducer
+import com.tayyipgunay.firststajproject.presentation.feature.products.list.ProductListReducer
+import com.tayyipgunay.firststajproject.data.network.AuthInterceptor
+
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
@@ -32,7 +33,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-    val logger = HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
+   val logger = HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
 
     @Provides
     @Singleton
@@ -127,27 +128,5 @@ object AppModule {
 
     )
     }
-
-/*@Provides
-    @Singleton
-    fun provideProductRepository(
-        api: ProductApi,
-        @ApplicationContext context: Context
-    ): ProductRepository =
-        ProductRepositoryImpl(
-            api, context,
-            httpErrorMapper = TODO()
-        )
-}*/
-
-    /*@Provides
-    @Singleton
-    fun provideGetProductRepository(
-        @ApplicationContext context: Context
-    ): GetProductRepositoryIMPL =
-*/
-
-
-
 
 

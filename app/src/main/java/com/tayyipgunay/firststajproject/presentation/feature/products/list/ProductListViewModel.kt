@@ -1,4 +1,4 @@
-package com.tayyipgunay.firststajproject.presentation.products.list
+package com.tayyipgunay.firststajproject.presentation.feature.products.list
 
 import com.tayyipgunay.firststajproject.domain.usecase.GetProductUseCase2
 
@@ -15,7 +15,7 @@ import javax.inject.Inject
 import dagger.hilt.android.lifecycle.HiltViewModel
 
 @HiltViewModel
-class ProductListViewModel2 @Inject constructor(
+class ProductListViewModel @Inject constructor(
     private val getProductsUseCase: GetProductUseCase2,
     private val reducer: ProductListReducer
 ) : ViewModel() {

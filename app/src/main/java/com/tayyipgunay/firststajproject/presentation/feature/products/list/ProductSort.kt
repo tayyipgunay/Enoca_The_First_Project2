@@ -1,4 +1,4 @@
-package com.tayyipgunay.firststajproject.presentation.products.list
+package com.tayyipgunay.firststajproject.presentation.feature.products.list
 
 
 enum class ProductSort(val query: List<String>, val label: String) {

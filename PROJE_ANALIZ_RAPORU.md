@@ -530,3 +530,4 @@ Proje genel olarak **iyi bir mimari temele** sahip. Clean Architecture ve MVI pa
 4. **ProGuard Rules:** Release build için ProGuard rules kontrol edilmeli
 5. **Performance:** Image loading için Coil cache ayarları kontrol edilmeli
 
+

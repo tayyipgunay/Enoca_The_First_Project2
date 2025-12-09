@@ -1,4 +1,4 @@
-package com.tayyipgunay.firststajproject.presentation.products.list
+package com.tayyipgunay.firststajproject.presentation.feature.products.list
 
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageChannel
 import com.tayyipgunay.firststajproject.presentation.common.events.MessageType

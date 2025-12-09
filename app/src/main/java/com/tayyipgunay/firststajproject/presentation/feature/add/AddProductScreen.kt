@@ -1,4 +1,4 @@
-package com.tayyipgunay.firststajproject.presentation.add
+package com.tayyipgunay.firststajproject.presentation.feature.add
 
 import android.net.Uri
 import android.widget.Toast
@@ -86,7 +86,7 @@ private fun AddProductTopBar() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddProductForm(
-    state:AddProductContract.State,
+    state: AddProductContract.State,
     onIntent: (AddProductContract.Intent) -> Unit
 ) {
     // Dosya seçiciler
@@ -261,10 +261,10 @@ private fun FilePickRow(
  * ========================= */
 @Composable
 fun AddProductScreen(
-    state:AddProductContract.State,
+    state: AddProductContract.State,
     onIntent: (AddProductContract.Intent) -> Unit,
     onSavedNavigateBack: () -> Unit,
-    effect:SharedFlow< AddProductContract.Effect>
+    effect:SharedFlow<AddProductContract.Effect>
     ) {
     var showInfoDialog by remember { mutableStateOf<String?>(null) }
     var showConfirmDialog by remember { mutableStateOf<String?>(null) }

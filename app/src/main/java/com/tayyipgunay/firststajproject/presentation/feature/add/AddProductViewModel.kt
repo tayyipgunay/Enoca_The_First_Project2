@@ -1,4 +1,4 @@
-package com.tayyipgunay.firststajproject.presentation.add
+package com.tayyipgunay.firststajproject.presentation.feature.add
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -88,7 +88,9 @@ class AddProductViewModel @Inject constructor(
                 _state.update {
                     reducer.reduce(
                         it,
-                        AddProductReducer.Result.FieldUpdated(modelTypeId = intent.modelType.toString().toInt())
+                        AddProductReducer.Result.FieldUpdated(
+                            modelTypeId = intent.modelType.toString().toInt()
+                        )
                     )
                 }
 
@@ -152,18 +154,24 @@ class AddProductViewModel @Inject constructor(
             ).collect { res ->
                 when (res) {
                     is Resource.Loading ->
-                        _state.update { reducer.reduce(it, AddProductReducer.Result.CategoriesLoading) }
+                        _state.update { reducer.reduce(it,
+                            AddProductReducer.Result.CategoriesLoading
+                        ) }
 
                     is Resource.Success ->
                         _state.update {
-                            reducer.reduce(it, AddProductReducer.Result.CategoriesSuccess(res.data.orEmpty()))
+                            reducer.reduce(it,
+                                AddProductReducer.Result.CategoriesSuccess(res.data.orEmpty())
+                            )
                         }
 
                     is Resource.Error ->
                         _state.update {
                             reducer.reduce(
                                 it,
-                                AddProductReducer.Result.CategoriesFailure(res.message ?: "Kategori yüklenemedi")
+                                AddProductReducer.Result.CategoriesFailure(
+                                    res.message ?: "Kategori yüklenemedi"
+                                )
                             )
                         }
                 }
@@ -224,7 +232,9 @@ class AddProductViewModel @Inject constructor(
 
                     is Resource.Error -> {
                         val msg = res.message ?: "Kayıt başarısız"
-                        _state.update { reducer.reduce(it, AddProductReducer.Result.SubmitFailure(msg)) }
+                        _state.update { reducer.reduce(it,
+                            AddProductReducer.Result.SubmitFailure(msg)
+                        ) }
                         _effect.emit(AddProductContract.Effect.ShowMessage("Hata: $msg"))
                     }
                 }

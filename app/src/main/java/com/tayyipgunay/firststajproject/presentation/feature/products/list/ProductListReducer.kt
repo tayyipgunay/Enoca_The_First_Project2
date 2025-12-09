@@ -1,4 +1,4 @@
-package com.tayyipgunay.firststajproject.presentation.products.list
+package com.tayyipgunay.firststajproject.presentation.feature.products.list
 
 
 import javax.inject.Inject

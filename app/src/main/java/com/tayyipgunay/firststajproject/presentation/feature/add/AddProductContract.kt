@@ -1,4 +1,4 @@
-package com.tayyipgunay.firststajproject.presentation.add
+package com.tayyipgunay.firststajproject.presentation.feature.add
 
 import android.net.Uri
 import com.tayyipgunay.firststajproject.domain.model.Category
@@ -25,7 +25,8 @@ object AddProductContract {
 
         // Seçimler
         data class Category(val categoryId: String) : Intent
-        data class ModelType(val modelType: String) : Intent  // UI'dan string gelir; VM int'e çevirir
+        data class ModelType(val modelType: String) :
+            Intent  // UI'dan string gelir; VM int'e çevirir
 
         // Medya
         data class Image(val uri: Uri?) : Intent
