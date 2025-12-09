@@ -132,7 +132,11 @@ private fun ProductListContent(
     val refresh = lazyPagingItems.loadState.refresh
     val append = lazyPagingItems.loadState.append
     val itemCount = lazyPagingItems.itemCount
-
+    LaunchedEffect(append) {
+        if (append.endOfPaginationReached && itemCount > 0) {
+            onIntent(ProductListContract.Intent.EndReached)
+        }
+    }
     // ---- REFRESH (İLK SAYFA) DURUMLARI ----
     when {
         refresh is LoadState.Error && itemCount == 0 -> {
@@ -202,7 +206,6 @@ private fun ProductListContent(
 //  TOP BAR
 // =======================================================================
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProductListTopBar(
     selectedSort: ProductSort,
@@ -463,6 +466,11 @@ private fun InfoDialog(
 private fun CenteredLoading() =
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         CircularProgressIndicator()
+        Text(
+            "Ürünler yükleniyor...",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 
 @Composable

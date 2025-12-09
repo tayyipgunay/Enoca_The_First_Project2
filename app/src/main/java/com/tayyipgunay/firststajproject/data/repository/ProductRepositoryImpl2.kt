@@ -17,7 +17,6 @@ import com.tayyipgunay.firststajproject.data.remote.dto.toSummaryDomain
 import com.tayyipgunay.firststajproject.domain.model.ProductSummary
 import com.tayyipgunay.firststajproject.domain.repository.ProductRepository
 import com.tayyipgunay.firststajproject.domain.repository.ProductRepository2
-import com.tayyipgunay.firststajproject.presentation.ui.state.LoadingStateCard
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import retrofit2.HttpException
